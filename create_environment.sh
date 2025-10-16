@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # -------------------------------------------------------------
 # Script Name: create_environment.sh
 # Description: This script creates a structured environment for
@@ -14,22 +15,24 @@ echo "Enter your name:"
 # Read and store the input value in a variable called 'username'.
 read username
 # Define the main directory name by combining a base name with the user’s name.
-mkdir -p "submission_reminder_$username"
-main_dir="submission_reminder_{yourName}"
+main_dir="submission_reminder_$username"
+mkdir -p "$main_dir"
+
 mkdir -p ${main_dir}/{app,modules,assets,config}
-cat <<EOF > "$main_dir/config/config.env"
+cat <<'EOF' > "$main_dir/config/config.env"
 # This is the config file
 ASSIGNMENT="Shell Navigation"
 DAYS_REMAINING=2
 EOF
-cat <<EOF > "$main_dir/assets/submission.text"
+cat <<'EOF' > "$main_dir/assets/submission.text"
 student, assignment, submission status
 Chinemerem, Shell Navigation, not submitted
 Chiagoziem, Git, submitted
 Divine, Shell Navigation, not submitted
 Anissa, Shell Basics, submitted
+
 EOF
-cat <<EOF > "$main_dir//modules/functions.sh"
+cat <<'EOF' > "$main_dir/modules/functions.sh"
 #!/bin/bash
 
 # Function to read submissions file and output students who have not submitted
@@ -51,7 +54,7 @@ function check_submissions {
     done < <(tail -n +2 "$submissions_file") # Skip the header
 }
 EOF
-cat <<EOF > "$main_dir/app/reminder.sh"
+cat <<'EOF' > "$main_dir/app/reminder.sh"
 #!/bin/bash
 
 # Source environment variables and helper functions
@@ -68,11 +71,15 @@ echo "--------------------------------------------"
 
 check_submissions $submissions_file
 EOF
-cat <<EOF > "$main_dir/startup.sh"
-
+cat <<'EOF' > "$main_dir/startup.sh"
+#!/bin/bash
 echo "Starting Submission Reminder App..."
-sleep 1
-bash ./app/reminder.sh
+
+main_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cd "$main_dir"
+
+bash "$main_dir/app/reminder.sh"
 EOF
 chmod +x ${main_dir}/*.sh
 chmod +x ${main_dir}/app/*.sh
